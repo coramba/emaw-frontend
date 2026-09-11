@@ -19,6 +19,8 @@ export default {
     editThresholds: 'Изменить пороги',
     moreActions: 'Ещё действия',
     moreInfo: 'Подробнее',
+    ok: 'OK',
+    fail: 'СБОЙ',
     genericError: 'Что-то пошло не так.',
   },
   time: {
@@ -126,6 +128,13 @@ export default {
     chatId: 'ID чата назначения',
     chatIdPlaceholder: 'напр. 123456789',
     saveFailed: 'Не удалось сохранить настройки.',
+    testTitle: 'Проверка интеграций',
+    testHint: 'Отправляет минимальный запрос в OpenAI и сообщение в ваш чат Telegram, используя сохранённые настройки.',
+    testRun: 'Запустить тест',
+    testing: 'Проверка…',
+    testFailed: 'Тестовый запрос не выполнен.',
+    openai: 'OpenAI',
+    telegram: 'Telegram',
   },
   state: {
     armed: 'Готов',

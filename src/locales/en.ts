@@ -19,6 +19,8 @@ export default {
     editThresholds: 'Edit thresholds',
     moreActions: 'More actions',
     moreInfo: 'More info',
+    ok: 'OK',
+    fail: 'FAIL',
     genericError: 'Something went wrong.',
   },
   time: {
@@ -126,6 +128,13 @@ export default {
     chatId: 'Destination chat ID',
     chatIdPlaceholder: 'e.g. 123456789',
     saveFailed: 'Could not save settings.',
+    testTitle: 'Test integrations',
+    testHint: 'Sends a minimal request to OpenAI and a message to your Telegram chat, using the saved settings.',
+    testRun: 'Run test',
+    testing: 'Testing…',
+    testFailed: 'Test request failed.',
+    openai: 'OpenAI',
+    telegram: 'Telegram',
   },
   state: {
     armed: 'Armed',

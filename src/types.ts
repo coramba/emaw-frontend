@@ -122,3 +122,13 @@ export interface AppSettings {
   telegramEnabled: boolean
   telegramChatId: string | null
 }
+
+export interface IntegrationCheck {
+  ok: boolean
+  detail: string
+}
+
+export interface IntegrationTestResult {
+  openai: IntegrationCheck
+  telegram: IntegrationCheck
+}

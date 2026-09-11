@@ -19,6 +19,8 @@ export default {
     editThresholds: 'Upraviť prahy',
     moreActions: 'Ďalšie akcie',
     moreInfo: 'Viac informácií',
+    ok: 'OK',
+    fail: 'CHYBA',
     genericError: 'Niečo sa pokazilo.',
   },
   time: {
@@ -126,6 +128,13 @@ export default {
     chatId: 'ID cieľového chatu',
     chatIdPlaceholder: 'napr. 123456789',
     saveFailed: 'Nepodarilo sa uložiť nastavenia.',
+    testTitle: 'Test integrácií',
+    testHint: 'Odošle minimálnu požiadavku do OpenAI a správu do vášho Telegram chatu podľa uložených nastavení.',
+    testRun: 'Spustiť test',
+    testing: 'Testuje sa…',
+    testFailed: 'Testovacia požiadavka zlyhala.',
+    openai: 'OpenAI',
+    telegram: 'Telegram',
   },
   state: {
     armed: 'Pripravený',
