@@ -74,6 +74,8 @@ export interface ReportEvent {
 export interface InvestigationReport {
   id: number
   triggerEventId: number
+  model: string | null
+  isPrimary: boolean
   status: InvestigationStatus
   createdAt: string
   completedAt: string | null
@@ -110,7 +112,12 @@ export interface TriggerEvent {
   parentEventId: number | null
   investigationStatus: InvestigationStatus | null
   report?: InvestigationReport | null
+  /** All investigation attempts (primary + manual re-investigations) — present on the event detail fetch only. */
+  reports?: InvestigationReport[]
 }
+
+/** Fixed starter set for manual re-investigation — keep in sync with EventController::ALLOWED_MODELS. */
+export const REINVESTIGATE_MODELS = ['gpt-5.4', 'gpt-5.5', 'gpt-5.6-sol'] as const
 
 export interface MarketSnapshot {
   id: number

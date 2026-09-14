@@ -16,6 +16,26 @@ const testing = ref(false)
 const testResult = ref<IntegrationTestResult | null>(null)
 const testError = ref('')
 
+const clearingCache = ref(false)
+
+/** Unregisters the PWA service worker and wipes its caches, then reloads —
+ * the escape hatch when autoUpdate leaves a stale app shell/bundle behind. */
+async function clearAppCache() {
+  clearingCache.value = true
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations()
+      await Promise.all(regs.map((r) => r.unregister()))
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys()
+      await Promise.all(keys.map((k) => caches.delete(k)))
+    }
+  } finally {
+    window.location.reload()
+  }
+}
+
 onMounted(async () => {
   const data = await api.get<{ settings: AppSettings; investigationPrompt: string }>('/api/settings')
   investigationPrompt.value = data.investigationPrompt
@@ -113,6 +133,14 @@ async function runTest() {
           <p class="muted" style="margin: 0">{{ testResult[key].detail }}</p>
         </div>
       </div>
+    </div>
+
+    <div class="card stack">
+      <h3 style="margin: 0">{{ t('settings.cacheTitle') }}</h3>
+      <p class="muted">{{ t('settings.cacheHint') }}</p>
+      <button class="small" :disabled="clearingCache" @click="clearAppCache">
+        {{ clearingCache ? t('settings.cacheClearing') : t('settings.cacheClear') }}
+      </button>
     </div>
   </template>
 </template>

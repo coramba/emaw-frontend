@@ -127,6 +127,33 @@ h3 { font-size: 0.95rem; margin: 14px 0 8px; }
   margin-bottom: 12px;
 }
 
+/* Compact investigation summary pad, nested inside a card (report detail,
+   per-event list cards). */
+.assessment-pad {
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* Investigation status badge pinned to a pad's upper-right corner. */
+.badge.status-corner {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+}
+
+/* Event list item card: same as .card but a link, and a touch bit tighter. */
+.event-card {
+  display: block;
+  position: relative;
+  color: inherit;
+  padding: 14px 16px;
+}
+.event-card:hover {
+  text-decoration: none;
+  border-color: var(--accent);
+}
+
 .row { display: flex; gap: 12px; align-items: center; }
 .row.between { justify-content: space-between; }
 .row.wrap { flex-wrap: wrap; }
@@ -156,6 +183,19 @@ button.ghost { background: transparent; border-color: transparent; }
 button.danger { color: var(--danger); }
 button:disabled { opacity: 0.5; cursor: default; }
 button.small { min-height: 32px; padding: 5px 10px; font-size: 0.85rem; }
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.05rem;
+  line-height: 1;
+}
 
 label { display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 4px; }
 input, select {
@@ -190,6 +230,9 @@ input, select {
 .badge.investigating, .badge.running, .badge.pending { color: var(--info); background: color-mix(in srgb, var(--info) 12%, transparent); }
 .badge.cooldown, .badge.disabled, .badge.insufficient { color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, transparent); }
 .badge.completed { color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); }
+/* Volume-vs-average badge: the arrow already carries direction, skip the status dot. */
+.badge.info { color: var(--info); background: color-mix(in srgb, var(--info) 12%, transparent); }
+.badge.info::before { display: none; }
 
 .change.up { color: var(--ok); }
 .change.down { color: var(--danger); }
@@ -225,6 +268,33 @@ input, select {
   .action-bar button { flex: 1; }
 }
 .change-row { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin-top: 14px;
+}
+.breadcrumbs a { color: var(--text-dim); }
+.breadcrumbs a:hover { color: var(--accent); }
+.breadcrumbs .current { color: var(--text); font-weight: 600; }
+.breadcrumbs .sep { color: var(--border); }
+
+.tabs { gap: 6px; margin-bottom: 10px; }
+.tabs button {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 999px;
+}
+.tabs button.active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  border-color: transparent;
+}
 
 .empty {
   text-align: center;

@@ -12,6 +12,7 @@ const { t } = useI18n()
 
 const email = ref('')
 const password = ref('')
+const rememberMe = ref(false)
 const error = ref('')
 const busy = ref(false)
 
@@ -19,7 +20,7 @@ async function submit() {
   busy.value = true
   error.value = ''
   try {
-    await auth.login(email.value, password.value)
+    await auth.login(email.value, password.value, rememberMe.value)
     router.push((route.query.redirect as string) || '/')
   } catch (e) {
     error.value = e instanceof ApiError ? t('login.invalid') : t('login.failed')
@@ -41,6 +42,10 @@ async function submit() {
         <label for="password">{{ t('login.password') }}</label>
         <input id="password" v-model="password" type="password" autocomplete="current-password" required />
       </div>
+      <label class="row" style="gap: 8px; margin-bottom: 0">
+        <input v-model="rememberMe" type="checkbox" style="width: auto; min-height: 0" />
+        <span>{{ t('login.rememberMe') }}</span>
+      </label>
       <p v-if="error" class="alert error">{{ error }}</p>
       <button class="primary" type="submit" :disabled="busy">{{ t('login.signIn') }}</button>
     </form>

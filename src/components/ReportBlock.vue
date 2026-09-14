@@ -15,6 +15,12 @@ import {
 
 defineProps<{ report: InvestigationReport }>()
 const { t } = useI18n()
+
+function roleBadgeClass(role: string): string {
+  if (role === 'primary_cause') return 'triggered'
+  if (role === 'alternative_explanation') return 'cooldown'
+  return 'info'
+}
 </script>
 
 <template>
@@ -58,27 +64,18 @@ const { t } = useI18n()
     <div v-if="report.events.length" class="stack">
       <h3 style="margin: 4px 0">{{ t('report.evidence') }}</h3>
       <div v-for="(ev, i) in report.events" :key="i" class="list-item stack">
-        <div class="row wrap" style="gap: 8px; align-items: baseline">
+        <div class="row between" style="gap: 8px; align-items: baseline">
           <a v-if="isHttpUrl(ev.sourceUrl)" :href="ev.sourceUrl" target="_blank" rel="noopener"><strong>{{ ev.title }}</strong></a>
           <strong v-else>{{ ev.title }}</strong>
-          <span v-if="ev.role === 'primary_cause'" class="badge triggered">{{ eventRoleLabel(ev.role) }}</span>
-          <span v-else-if="ev.role" class="muted" style="font-size: 0.78rem">{{ eventRoleLabel(ev.role) }}</span>
+          <span v-if="ev.role" class="badge" :class="roleBadgeClass(ev.role)">{{ eventRoleLabel(ev.role) }}</span>
         </div>
-        <span class="muted" v-if="ev.publishedAt || ev.sourceName || ev.sourceType">
+        <div class="muted" v-if="ev.publishedAt || ev.sourceName || ev.sourceType">
+          <template v-if="ev.publishedAt">{{ fmtDate(ev.publishedAt) }}<template v-if="ev.sourceName || ev.sourceType"> · </template></template>
           <template v-if="ev.sourceName">{{ ev.sourceName }}<template v-if="ev.sourceType"> · </template></template>
           <template v-if="ev.sourceType">{{ sourceTypeLabel(ev.sourceType) }}</template>
-          <template v-if="ev.publishedAt"> · {{ fmtDate(ev.publishedAt) }}</template>
-        </span>
-        <span>{{ ev.summary }}</span>
+        </div>
+        <div>{{ ev.summary }}</div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.assessment-pad {
-  background: var(--surface-2);
-  border-radius: 10px;
-  padding: 10px 12px;
-}
-</style>

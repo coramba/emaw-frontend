@@ -26,8 +26,8 @@ export const useAuthStore = defineStore('auth', {
         this.ready = true
       }
     },
-    async login(email: string, password: string) {
-      const { user } = await api.post<{ user: AuthUser }>('/api/login', { email, password })
+    async login(email: string, password: string, rememberMe: boolean) {
+      const { user } = await api.post<{ user: AuthUser }>('/api/login', { email, password, rememberMe })
       this.user = user
     },
     async logout() {
