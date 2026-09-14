@@ -11,8 +11,8 @@ const { t } = useI18n()
 
 <template>
   <RouterLink :to="`/events/${event.id}`" class="list-item stack">
-    <div class="row between">
-      <div class="row" style="gap: 8px">
+    <div class="row" :class="{ between: showSymbol || event.escalationLevel > 1 }">
+      <div class="row" style="gap: 8px" v-if="showSymbol || event.escalationLevel > 1">
         <strong v-if="showSymbol">{{ event.symbol }}</strong>
         <span v-if="event.escalationLevel > 1" class="badge triggered">
           {{ t('events.escalationLevel', { n: event.escalationLevel }) }}

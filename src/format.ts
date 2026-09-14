@@ -23,6 +23,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 export function fmtDate(iso: string | null | undefined): string {
   if (!iso) return '—'
   const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
   const p = (n: number) => String(n).padStart(2, '0')
   return `${p(d.getDate())} ${MONTHS[d.getMonth()]} ${String(d.getFullYear()).slice(-2)}, ${p(d.getHours())}:${p(d.getMinutes())}`
 }
@@ -53,6 +54,41 @@ export function investigationStatusLabel(s: string): string {
   return i18n.global.te(`investigationStatus.${s}`) ? t(`investigationStatus.${s}`) : s
 }
 
+export function recoveryLikelihoodLabel(v: string): string {
+  return i18n.global.te(`report.recovery.${v}`) ? t(`report.recovery.${v}`) : titleCase(v)
+}
+
+export function impactLevelLabel(v: string): string {
+  return i18n.global.te(`report.impactLevel.${v}`) ? t(`report.impactLevel.${v}`) : titleCase(v)
+}
+
+export function overreactionLabel(v: string): string {
+  return i18n.global.te(`report.overreaction.${v}`) ? t(`report.overreaction.${v}`) : titleCase(v)
+}
+
+export function sourceTypeLabel(v: string): string {
+  return i18n.global.te(`report.sourceType.${v}`) ? t(`report.sourceType.${v}`) : titleCase(v)
+}
+
+export function eventRoleLabel(v: string): string {
+  return i18n.global.te(`report.role.${v}`) ? t(`report.role.${v}`) : titleCase(v)
+}
+
 function titleCase(s: string): string {
   return s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+// Compact share-volume display: 12345678 -> "12.35M"
+export function fmtVolume(n: number | null | undefined): string {
+  if (n === null || n === undefined) return '—'
+  if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(2) + 'B'
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M'
+  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K'
+  return String(n)
+}
+
+// Guards against rendering a non-URL string (e.g. an AI-provided source
+// description) as a link — that would navigate within the SPA instead.
+export function isHttpUrl(value: string | null | undefined): boolean {
+  return !!value && /^https?:\/\//i.test(value)
 }

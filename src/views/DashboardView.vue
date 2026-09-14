@@ -51,6 +51,11 @@ async function setEnabled(ticker: Ticker, enabled: boolean) {
   await load()
 }
 
+async function resetState(ticker: Ticker) {
+  await api.post(`/api/tickers/${ticker.id}/reset`)
+  await load()
+}
+
 async function confirmRemove() {
   if (!toRemove.value) return
   removing.value = true
@@ -89,6 +94,7 @@ onMounted(load)
       :ticker="ticker"
       @enable="setEnabled($event, true)"
       @disable="setEnabled($event, false)"
+      @reset="resetState"
       @remove="toRemove = $event"
     />
   </div>

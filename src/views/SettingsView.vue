@@ -6,6 +6,7 @@ import type { AppSettings, IntegrationTestResult } from '../types'
 
 const { t } = useI18n()
 const settings = reactive<AppSettings>({ telegramEnabled: false, telegramChatId: '' })
+const investigationPrompt = ref('')
 const loading = ref(true)
 const busy = ref(false)
 const saved = ref(false)
@@ -16,8 +17,9 @@ const testResult = ref<IntegrationTestResult | null>(null)
 const testError = ref('')
 
 onMounted(async () => {
-  const data = (await api.get<{ settings: AppSettings }>('/api/settings')).settings
-  Object.assign(settings, { ...data, telegramChatId: data.telegramChatId ?? '' })
+  const data = await api.get<{ settings: AppSettings; investigationPrompt: string }>('/api/settings')
+  investigationPrompt.value = data.investigationPrompt
+  Object.assign(settings, { ...data.settings, telegramChatId: data.settings.telegramChatId ?? '' })
   loading.value = false
 })
 
@@ -83,6 +85,15 @@ async function runTest() {
     </form>
 
     <div class="card stack">
+      <h3 style="margin: 0">{{ t('settings.promptTitle') }}</h3>
+      <p class="muted">{{ t('settings.promptHint') }}</p>
+      <details>
+        <summary>{{ t('settings.promptShow') }}</summary>
+        <pre class="prompt-view">{{ investigationPrompt }}</pre>
+      </details>
+    </div>
+
+    <div class="card stack">
       <h3>{{ t('settings.testTitle') }}</h3>
       <p class="muted">{{ t('settings.testHint') }}</p>
       <button class="small" :disabled="testing" @click="runTest">
@@ -105,3 +116,23 @@ async function runTest() {
     </div>
   </template>
 </template>
+
+<style scoped>
+summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+.prompt-view {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+</style>

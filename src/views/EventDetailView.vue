@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { api } from '../api'
 import type { TriggerEvent } from '../types'
 import { fmtDate, fmtNum, reasonLabel } from '../format'
 import ChangePct from '../components/ChangePct.vue'
 import ReportBlock from '../components/ReportBlock.vue'
+import BackLink from '../components/BackLink.vue'
 
 const props = defineProps<{ id: string }>()
 const { t } = useI18n()
@@ -23,9 +23,10 @@ onMounted(async () => {
   <p v-if="loading" class="empty">{{ t('common.loading') }}</p>
   <template v-else-if="event">
     <div class="row between" style="margin-top: 16px">
-      <h1 style="margin: 0">
-        <RouterLink :to="`/tickers/${event.tickerId}`" style="color: inherit">{{ event.symbol }}</RouterLink>
-      </h1>
+      <div class="row" style="gap: 10px; align-items: center">
+        <BackLink :to="`/tickers/${event.tickerId}`" :label="t('nav.backToTicker')" />
+        <h1 style="margin: 0">{{ event.symbol }}</h1>
+      </div>
       <span v-if="event.escalationLevel > 1" class="badge triggered">
         {{ t('events.escalationLevel', { n: event.escalationLevel }) }}
       </span>

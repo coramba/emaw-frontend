@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // Runs inside the shared `node` container (same pattern as the sibling
 // projects). Host/port come from NODE_HOST / NODE_PORT.
@@ -18,7 +19,33 @@ export default defineConfig(({ mode }) => {
   const apiHostHeader = env.VITE_API_HOST_HEADER || 'api-emaw.do.com'
 
   return {
-    plugins: [vue()],
+    plugins: [
+      vue(),
+      // App-shell only: installable + instant-load icon/splash. Deliberately
+      // no runtime caching of /api — this is a live-price monitor, showing a
+      // stale cached number as if current would be actively misleading.
+      VitePWA({
+        registerType: 'autoUpdate',
+        manifest: {
+          name: 'Stock Movement Monitor',
+          short_name: 'Stock Monitor',
+          description: 'Watch tickers, detect meaningful moves, investigate why.',
+          theme_color: '#2f6df6',
+          background_color: '#f4f5f7',
+          display: 'standalone',
+          start_url: '/',
+          scope: '/',
+          icons: [
+            { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+            { src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          ],
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        },
+      }),
+    ],
     server: {
       host,
       port,

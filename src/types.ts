@@ -66,6 +66,9 @@ export interface ReportEvent {
   publishedAt: string | null
   summary: string
   sourceUrl: string
+  sourceName?: string
+  sourceType?: string
+  role?: string
 }
 
 export interface InvestigationReport {
@@ -79,7 +82,12 @@ export interface InvestigationReport {
   confidence: number | null
   summary: string | null
   events: ReportEvent[]
-  assessment: { fundamentalImpact?: string; potentialOverreaction?: boolean } | null
+  assessment: {
+    fundamentalImpact?: string
+    potentialOverreaction?: string
+    recoveryLikelihood?: string
+    recoveryRationale?: string
+  } | null
   insufficientEvidence: boolean | null
   error: string | null
 }

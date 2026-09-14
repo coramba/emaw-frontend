@@ -8,7 +8,7 @@ import ChangePct from './ChangePct.vue'
 import OverflowMenu from './OverflowMenu.vue'
 
 defineProps<{ ticker: Ticker }>()
-const emit = defineEmits<{ enable: [Ticker]; disable: [Ticker]; remove: [Ticker] }>()
+const emit = defineEmits<{ enable: [Ticker]; disable: [Ticker]; remove: [Ticker]; reset: [Ticker] }>()
 const { t } = useI18n()
 </script>
 
@@ -25,6 +25,7 @@ const { t } = useI18n()
         <RouterLink :to="`/tickers/${ticker.id}/edit`"><button>{{ t('common.editThresholds') }}</button></RouterLink>
         <button v-if="ticker.enabled" @click="emit('disable', ticker)">{{ t('common.disable') }}</button>
         <button v-else @click="emit('enable', ticker)">{{ t('common.enable') }}</button>
+        <button @click="emit('reset', ticker)">{{ t('common.resetState') }}</button>
         <button class="danger" @click="emit('remove', ticker)">{{ t('common.remove') }}</button>
       </OverflowMenu>
     </div>

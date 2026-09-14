@@ -133,7 +133,7 @@ h3 { font-size: 0.95rem; margin: 14px 0 8px; }
 .grow { flex: 1; min-width: 0; }
 .muted { color: var(--text-dim); font-size: 0.85rem; }
 .mono { font-variant-numeric: tabular-nums; }
-.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 
 .stack > * + * { margin-top: 10px; }
 
@@ -297,6 +297,8 @@ input, select {
 .big-number { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
 
 @media (min-width: 620px) {
-  .ticker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .ticker-grid .card { margin-bottom: 0; }
+  /* minmax(0, 1fr): plain 1fr still lets a card's intrinsic content (long
+     company name, wide price) stretch its track past its equal share. */
+  .ticker-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+  .ticker-grid .card { margin-bottom: 0; min-width: 0; }
 }
