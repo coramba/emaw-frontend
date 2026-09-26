@@ -135,6 +135,29 @@ h3 { font-size: 0.95rem; margin: 14px 0 8px; }
   padding: 10px 12px;
 }
 
+/* Source-verification dot: a small circle split left/right — left half is
+   existence (does the source even exist), right half is content (does it
+   back the claim) — in front of an evidence title. No label; color plus the
+   title/aria-label tooltip carry the meaning. */
+.status-dot {
+  display: inline-flex;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.status-dot > span {
+  display: block;
+  width: 50%;
+  height: 100%;
+  background: var(--border); /* default: unknown/not-yet-checked */
+}
+.status-dot > span.verified { background: var(--ok); }
+/* True yellow, not --warn's muted text-amber — too dark/brown at this size. */
+.status-dot > span.questionable { background: #f2c200; }
+.status-dot > span.hallucination { background: var(--danger); }
+
 /* Investigation status badge pinned to a pad's upper-right corner. */
 .badge.status-corner {
   position: absolute;
@@ -282,6 +305,16 @@ input, select {
 .breadcrumbs a:hover { color: var(--accent); }
 .breadcrumbs .current { color: var(--text); font-weight: 600; }
 .breadcrumbs .sep { color: var(--border); }
+
+/* Violet accent for the copy-verification-prompt action, on the standard
+   .small button shape — a real button, not a pill, per request. */
+button.small.violet {
+  background: color-mix(in srgb, #8b5cf6 15%, transparent);
+  border-color: color-mix(in srgb, #8b5cf6 40%, transparent);
+  color: #8b5cf6;
+}
+button.small.violet:hover { border-color: #8b5cf6; }
+button.small.violet.copied { background: color-mix(in srgb, var(--ok) 15%, transparent); border-color: var(--ok); color: var(--ok); }
 
 .tabs { gap: 6px; margin-bottom: 10px; }
 .tabs button {

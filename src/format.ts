@@ -74,6 +74,26 @@ export function eventRoleLabel(v: string): string {
   return i18n.global.te(`report.role.${v}`) ? t(`report.role.${v}`) : titleCase(v)
 }
 
+const VERIFICATION_EMOJI: Record<string, string> = {
+  verified: '🟢',
+  questionable: '🟡',
+  probable_hallucination: '🔴',
+}
+
+export function verificationLabel(status: string): string {
+  const label = i18n.global.te(`report.verification.${status}`) ? t(`report.verification.${status}`) : titleCase(status)
+  return `${VERIFICATION_EMOJI[status] ?? ''} ${label}`.trim()
+}
+
+// Dot color class per source-verification status — its own names, deliberately
+// not reusing 'completed'/'cooldown'/'failed' (those belong to ticker/badge
+// state) even though the colors happen to match.
+export function verificationDotClass(status: string): string {
+  if (status === 'verified') return 'verified'
+  if (status === 'probable_hallucination') return 'hallucination'
+  return 'questionable'
+}
+
 function titleCase(s: string): string {
   return s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }

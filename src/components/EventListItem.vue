@@ -34,6 +34,7 @@ const { t } = useI18n()
     <span v-if="!event.investigationStatus" class="muted">{{ t('events.notInvestigated') }}</span>
 
     <div v-if="event.report?.summary" class="assessment-pad change-row" style="font-size: 0.85rem">
+      <span v-if="event.report.verificationStatus === 'needs_review'" class="badge cooldown">{{ t('report.needsReview') }}</span>
       <span v-if="event.report.classification" class="muted">
         {{ t('report.cause') }}: <strong>{{ classificationLabel(event.report.classification) }}</strong>
       </span>

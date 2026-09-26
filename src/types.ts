@@ -61,6 +61,27 @@ export interface TriggerReason {
   observed: number
 }
 
+export type VerificationStatus = 'verified' | 'questionable' | 'probable_hallucination'
+
+export interface AiSourceCheck {
+  urlValid: boolean | null
+  claimSupportedBySource: boolean | null
+  reason: string
+}
+
+export interface SourceVerification {
+  status: VerificationStatus
+  /** Does the source exist at all (URL reachable / not 404-410 / not blocked). */
+  existence: VerificationStatus
+  /** Does the page's content actually back the claim — null ("unknown") when existence isn't confirmed and no AI opinion filled it in. */
+  content: VerificationStatus | null
+  httpStatus: number | null
+  matchedKeywords: number
+  totalKeywords: number
+  /** Present only when the mechanical check wasn't green — a second, independent AI opinion. */
+  aiCheck?: AiSourceCheck
+}
+
 export interface ReportEvent {
   title: string
   publishedAt: string | null
@@ -69,6 +90,8 @@ export interface ReportEvent {
   sourceName?: string
   sourceType?: string
   role?: string
+  keywords?: string[]
+  verification?: SourceVerification | null
 }
 
 export interface InvestigationReport {
@@ -92,6 +115,7 @@ export interface InvestigationReport {
   } | null
   insufficientEvidence: boolean | null
   error: string | null
+  verificationStatus: 'verified' | 'needs_review' | null
 }
 
 export interface TriggerEvent {
@@ -117,7 +141,7 @@ export interface TriggerEvent {
 }
 
 /** Fixed starter set for manual re-investigation — keep in sync with EventController::ALLOWED_MODELS. */
-export const REINVESTIGATE_MODELS = ['gpt-5.4', 'gpt-5.5', 'gpt-5.6-sol'] as const
+export const REINVESTIGATE_MODELS = ['gpt-5.4', 'gpt-5.5', 'gpt-5.6-sol', 'gpt-5.6-terra'] as const
 
 export interface MarketSnapshot {
   id: number
