@@ -1,11 +1,24 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Icon from './Icon.vue'
 
 const { t } = useI18n()
 const open = ref(false)
 const root = ref<HTMLElement | null>(null)
+const menu = ref<HTMLElement | null>(null)
+const up = ref(false)
+
+// No stopPropagation on the toggle: the document click must reach the other
+// open menus so they close. Opens upward when the fixed tab bar would cover it.
+async function toggle() {
+  open.value = !open.value
+  if (!open.value) return
+  up.value = false
+  await nextTick()
+  const tabbar = document.querySelector<HTMLElement>('.tabbar')?.offsetHeight ?? 0
+  up.value = !!menu.value && menu.value.getBoundingClientRect().bottom > window.innerHeight - tabbar
+}
 
 function onDocClick(e: MouseEvent) {
   if (root.value && !root.value.contains(e.target as Node)) open.value = false
@@ -30,11 +43,11 @@ onBeforeUnmount(() => {
       class="icon-btn outlined"
       :aria-label="t('common.moreActions')"
       :aria-expanded="open"
-      @click.stop.prevent="open = !open"
+      @click.prevent="toggle"
     >
       <Icon name="more" :size="22" />
     </button>
-    <div v-if="open" class="menu" role="menu" @click="open = false">
+    <div v-if="open" ref="menu" class="menu" :class="{ up }" role="menu" @click="open = false">
       <slot />
     </div>
   </div>
@@ -54,6 +67,7 @@ onBeforeUnmount(() => {
   border: 1px solid var(--line);
   box-shadow: var(--shadow-pop);
 }
+.menu.up { top: auto; bottom: calc(100% + 6px); }
 .menu :slotted(button) {
   display: flex;
   align-items: center;
