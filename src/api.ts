@@ -1,10 +1,13 @@
 export class ApiError extends Error {
   status: number
+  /** Backend machine-readable error code, e.g. 'symbol_not_found', 'duplicate_ticker'. */
+  code: string | null
   violations: { field: string; message: string }[]
 
-  constructor(status: number, message: string, violations: { field: string; message: string }[] = []) {
+  constructor(status: number, message: string, violations: { field: string; message: string }[] = [], code: string | null = null) {
     super(message)
     this.status = status
+    this.code = code
     this.violations = violations
   }
 }
@@ -23,7 +26,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   if (!res.ok) {
     const message: string =
       data?.message ?? data?.error ?? `Request failed (${res.status})`
-    throw new ApiError(res.status, message, data?.violations ?? [])
+    throw new ApiError(res.status, message, data?.violations ?? [], data?.error ?? null)
   }
 
   return data as T

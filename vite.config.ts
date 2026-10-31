@@ -27,11 +27,11 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: 'autoUpdate',
         manifest: {
-          name: 'Stock Movement Monitor',
-          short_name: 'Stock Monitor',
-          description: 'Watch tickers, detect meaningful moves, investigate why.',
-          theme_color: '#2f6df6',
-          background_color: '#f4f5f7',
+          name: 'Dropwatch',
+          short_name: 'Dropwatch',
+          description: 'Watches your stocks for sharp drops and finds out why they happened.',
+          theme_color: '#13294B',
+          background_color: '#EDF1F5',
           display: 'standalone',
           start_url: '/',
           scope: '/',

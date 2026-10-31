@@ -1,8 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#2f6df6"/>
-  <polyline points="96,360 192,280 288,320 416,140" fill="none" stroke="#ffffff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="96" cy="360" r="15" fill="#ffffff"/>
-  <circle cx="192" cy="280" r="15" fill="#ffffff"/>
-  <circle cx="288" cy="320" r="15" fill="#ffffff"/>
-  <circle cx="416" cy="140" r="17" fill="#ffffff"/>
+  <rect width="512" height="512" rx="116" fill="#13294B"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M244 300 L458 178" stroke="#2BD67B" stroke-width="22"/>
+  <path d="M244 300 L458 356" stroke="#FF5A5F" stroke-width="22"/>
+  <path d="M44 214 L110 232 L156 112 L244 300" stroke="#FFFFFF" stroke-width="30"/>
+  </g>
+  <circle cx="244" cy="300" r="80" fill="#13294B" stroke="#13294B" stroke-width="62"/>
+  <path d="M182 362 L102 442" stroke="#FF8A1F" stroke-width="54" stroke-linecap="round"/>
+  <circle cx="244" cy="300" r="80" fill="none" stroke="#FF8A1F" stroke-width="40"/>
+  <circle cx="244" cy="300" r="24" fill="#FF5A5F"/>
 </svg>

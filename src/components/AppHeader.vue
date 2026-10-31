@@ -1,73 +1,117 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '../stores/auth'
-import { LOCALES, setLocale, type Locale } from '../i18n'
+import AppLogo from './AppLogo.vue'
+import UserMenu from './UserMenu.vue'
+import Icon, { type IconName } from './Icon.vue'
 
-const auth = useAuthStore()
-const router = useRouter()
 const route = useRoute()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
-const LOCALE_NAMES: Record<Locale, string> = { en: 'EN', sk: 'SK', ru: 'RU' }
-
-const menuOpen = ref(false)
-const root = ref<HTMLElement | null>(null)
-
-function close() {
-  menuOpen.value = false
-}
-function onDocClick(e: MouseEvent) {
-  if (root.value && !root.value.contains(e.target as Node)) close()
-}
-onMounted(() => document.addEventListener('click', onDocClick))
-onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
-watch(() => route.fullPath, close)
-
-function onLocaleChange(e: Event) {
-  setLocale((e.target as HTMLSelectElement).value as Locale)
-}
-
-async function logout() {
-  close()
-  await auth.logout()
-  router.push({ name: 'login' })
-}
+const TABS: { to: string; label: string; icon: IconName; match: (p: string) => boolean }[] = [
+  { to: '/', label: 'nav.watchlist', icon: 'watchlist', match: (p) => p === '/' || p.startsWith('/tickers') },
+  { to: '/events', label: 'nav.investigations', icon: 'investigate', match: (p) => p.startsWith('/events') },
+  { to: '/settings', label: 'nav.settings', icon: 'settings', match: (p) => p.startsWith('/settings') },
+]
 </script>
 
 <template>
-  <header class="app-header" ref="root">
-    <div class="app-header-inner">
-      <RouterLink to="/" class="brand" @click="close">{{ t('app.name') }}</RouterLink>
-
-      <button
-        class="hamburger ghost small"
-        :aria-label="t('nav.menu')"
-        :aria-expanded="menuOpen"
-        @click.stop="menuOpen = !menuOpen"
-      >
-        ☰
-      </button>
-
-      <nav :class="{ open: menuOpen }">
-        <RouterLink to="/"><button class="ghost small">{{ t('nav.dashboard') }}</button></RouterLink>
-        <RouterLink to="/events"><button class="ghost small">{{ t('nav.events') }}</button></RouterLink>
-        <RouterLink to="/settings"><button class="ghost small">{{ t('nav.settings') }}</button></RouterLink>
-        <select class="lang-select" :value="locale" @change="onLocaleChange" :aria-label="t('nav.language')">
-          <option v-for="l in LOCALES" :key="l" :value="l">{{ LOCALE_NAMES[l] }}</option>
-        </select>
-        <button class="ghost small" @click="logout">{{ t('nav.signOut') }}</button>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <RouterLink to="/" class="brand" :aria-label="t('nav.watchlist')"><AppLogo :size="30" /></RouterLink>
+      <nav class="top-nav" :aria-label="t('nav.main')">
+        <RouterLink
+          v-for="tab in TABS"
+          :key="tab.to"
+          :to="tab.to"
+          :class="{ active: tab.match(route.path) }"
+          :aria-current="tab.match(route.path) ? 'page' : undefined"
+        >
+          <Icon :name="tab.icon" :size="18" />{{ t(tab.label) }}
+        </RouterLink>
       </nav>
+      <UserMenu />
     </div>
   </header>
+
+  <nav v-if="!route.meta.focus" class="tabbar" :aria-label="t('nav.main')">
+    <RouterLink
+      v-for="tab in TABS"
+      :key="tab.to"
+      :to="tab.to"
+      :class="{ active: tab.match(route.path) }"
+      :aria-current="tab.match(route.path) ? 'page' : undefined"
+    >
+      <Icon :name="tab.icon" :size="22" />
+      <span>{{ t(tab.label) }}</span>
+    </RouterLink>
+  </nav>
 </template>
 
 <style scoped>
-.lang-select {
-  width: auto;
-  min-height: 32px;
-  padding: 4px 6px;
-  font-size: 0.8rem;
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1080px;
+  height: 60px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.brand:hover { text-decoration: none; }
+
+.top-nav { display: none; gap: 4px; margin-left: auto; margin-right: 12px; }
+.top-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--ink-2);
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.top-nav a:hover { text-decoration: none; background: var(--surface); color: var(--ink); }
+.top-nav a.active { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+}
+.tabbar a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--ink-3);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.tabbar a:hover { text-decoration: none; }
+.tabbar a.active { color: var(--tide); }
+
+@media (min-width: 900px) {
+  .topbar-inner { padding: 0 32px; height: 68px; }
+  .top-nav { display: flex; }
+  .tabbar { display: none; }
 }
 </style>

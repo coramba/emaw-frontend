@@ -8,24 +8,40 @@ export function fmtNum(n: number | null | undefined, digits = 2): string {
 
 export function fmtPct(n: number | null | undefined): string {
   if (n === null || n === undefined) return '—'
-  const sign = n > 0 ? '+' : ''
-  return `${sign}${n.toFixed(2)}%`
+  const v = n.toLocaleString(i18n.global.locale.value, { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' })
+  return `${v}%`
 }
 
 export function pctClass(n: number | null | undefined): string {
-  if (n === null || n === undefined || n === 0) return ''
+  if (n === null || n === undefined || n === 0) return 'flat'
   return n > 0 ? 'up' : 'down'
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-// "11 Sep 26, 14:21"
-export function fmtDate(iso: string | null | undefined): string {
+function fmtIntl(iso: string | null | undefined, opts: Intl.DateTimeFormatOptions): string {
   if (!iso) return '—'
   const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return '—'
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${p(d.getDate())} ${MONTHS[d.getMonth()]} ${String(d.getFullYear()).slice(-2)}, ${p(d.getHours())}:${p(d.getMinutes())}`
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString(i18n.global.locale.value, opts)
+}
+
+// "11 Sep 2026, 14:21" in the UI locale
+export function fmtDate(iso: string | null | undefined): string {
+  return fmtIntl(iso, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+// "11 Sep 2026"
+export function fmtDay(iso: string | null | undefined): string {
+  return fmtIntl(iso, { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+// Price with the ticker's currency when known: "$118.40", "€42.10", "118.40 CHF"
+export function fmtPrice(n: number | null | undefined, currency?: string | null): string {
+  if (n === null || n === undefined) return '—'
+  if (!currency) return n.toFixed(2)
+  try {
+    return n.toLocaleString(i18n.global.locale.value, { style: 'currency', currency, minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  } catch {
+    return `${n.toFixed(2)} ${currency}`
+  }
 }
 
 export function fmtTime(iso: string | null | undefined): string {
@@ -74,15 +90,8 @@ export function eventRoleLabel(v: string): string {
   return i18n.global.te(`report.role.${v}`) ? t(`report.role.${v}`) : titleCase(v)
 }
 
-const VERIFICATION_EMOJI: Record<string, string> = {
-  verified: '🟢',
-  questionable: '🟡',
-  probable_hallucination: '🔴',
-}
-
 export function verificationLabel(status: string): string {
-  const label = i18n.global.te(`report.verification.${status}`) ? t(`report.verification.${status}`) : titleCase(status)
-  return `${VERIFICATION_EMOJI[status] ?? ''} ${label}`.trim()
+  return i18n.global.te(`report.verification.${status}`) ? t(`report.verification.${status}`) : titleCase(status)
 }
 
 // Dot color class per source-verification status — its own names, deliberately

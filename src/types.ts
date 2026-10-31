@@ -46,6 +46,7 @@ export interface Ticker {
   enabled: boolean
   state: MonitoringState
   lastCheckedAt: string | null
+  nextCheckAt: string | null
   lastError: string | null
   lastPrice: number | null
   lastDayChangePct: number | null
@@ -53,6 +54,9 @@ export interface Ticker {
   createdAt: string
   config: TriggerConfig
   activeEvent: ActiveEventSummary | null
+  favorite: boolean
+  /** Per-stock Telegram switch; the account-wide Telegram settings still apply on top. */
+  telegramAlerts: boolean
 }
 
 export interface TriggerReason {
@@ -67,6 +71,8 @@ export interface AiSourceCheck {
   urlValid: boolean | null
   claimSupportedBySource: boolean | null
   reason: string
+  /** The user asked for this check from the verification menu. */
+  manual?: boolean
 }
 
 export interface SourceVerification {
@@ -76,10 +82,14 @@ export interface SourceVerification {
   /** Does the page's content actually back the claim — null ("unknown") when existence isn't confirmed and no AI opinion filled it in. */
   content: VerificationStatus | null
   httpStatus: number | null
+  /** Why the page couldn't be fetched when no HTTP status came back. */
+  fetchError?: 'no_such_domain' | 'refused' | 'timeout'
   matchedKeywords: number
   totalKeywords: number
   /** Present only when the mechanical check wasn't green — a second, independent AI opinion. */
   aiCheck?: AiSourceCheck
+  /** A manual AI check is queued/running for this source. */
+  aiCheckPending?: boolean
 }
 
 export interface ReportEvent {
@@ -92,6 +102,8 @@ export interface ReportEvent {
   role?: string
   keywords?: string[]
   verification?: SourceVerification | null
+  /** Source domain is on the owner's blocklist (computed by the backend). */
+  blocked?: boolean
 }
 
 export interface InvestigationReport {
@@ -141,7 +153,7 @@ export interface TriggerEvent {
 }
 
 /** Fixed starter set for manual re-investigation — keep in sync with EventController::ALLOWED_MODELS. */
-export const REINVESTIGATE_MODELS = ['gpt-5.4', 'gpt-5.5', 'gpt-5.6-sol', 'gpt-5.6-terra'] as const
+export const REINVESTIGATE_MODELS = ['gpt-5.4', 'gpt-5.5', 'gpt-6-sol', 'gpt-6-luna'] as const
 
 export interface MarketSnapshot {
   id: number
@@ -160,6 +172,14 @@ export interface MarketSnapshot {
 export interface AppSettings {
   telegramEnabled: boolean
   telegramChatId: string | null
+  defaultChartRange: HistoryRange
+}
+
+/** A domain the AI must not use as a source (covers its subdomains). */
+export interface BlockedSource {
+  id: number
+  domain: string
+  createdAt: string
 }
 
 export interface IntegrationCheck {
@@ -170,4 +190,23 @@ export interface IntegrationCheck {
 export interface IntegrationTestResult {
   openai: IntegrationCheck
   telegram: IntegrationCheck
+}
+
+/** Result of GET /api/tickers/lookup — a symbol preview before adding it. */
+export interface TickerQuote {
+  symbol: string
+  name: string | null
+  exchange: string | null
+  currency: string | null
+  price: number
+  dayChangePct: number | null
+  fiveDayChangePct: number | null
+  existingTickerId: number | null
+}
+
+export type HistoryRange = '5d' | '1mo' | '3mo' | '1y'
+
+export interface HistoryPoint {
+  t: string
+  close: number
 }

@@ -24,6 +24,17 @@ export const i18n = createI18n({
   locale: initialLocale(),
   fallbackLocale: 'en',
   messages: { en, sk, ru },
+  // Slavic plural forms: "one | few | many".
+  pluralRules: {
+    sk: (n: number, choices: number) => (choices < 3 ? (n === 1 ? 0 : 1) : n === 1 ? 0 : n >= 2 && n <= 4 ? 1 : 2),
+    ru: (n: number, choices: number) => {
+      if (choices < 3) return n === 1 ? 0 : 1
+      const m10 = n % 10
+      const m100 = n % 100
+      if (m10 === 1 && m100 !== 11) return 0
+      return m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? 1 : 2
+    },
+  },
 })
 
 export function setLocale(locale: Locale): void {
