@@ -169,10 +169,16 @@ export interface MarketSnapshot {
   fiveDayChangePct: number | null
 }
 
+/** Account-wide "pause all" while active; until null = until the user resumes. */
+export interface AccountPause {
+  until: string | null
+}
+
 export interface AppSettings {
   telegramEnabled: boolean
   telegramChatId: string | null
   defaultChartRange: HistoryRange
+  pause: AccountPause | null
 }
 
 /** A domain the AI must not use as a source (covers its subdomains). */

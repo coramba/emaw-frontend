@@ -26,6 +26,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey))
       <div class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
         <h2 id="confirm-title">{{ title }}</h2>
         <p class="muted">{{ message }}</p>
+        <slot />
         <p v-if="error" class="notice error">{{ error }}</p>
         <div class="actions">
           <button type="button" class="btn quiet" :disabled="busy" @click="emit('cancel')">{{ t('common.cancel') }}</button>

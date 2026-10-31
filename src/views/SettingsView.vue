@@ -7,15 +7,17 @@ import { HISTORY_RANGES, setDefaultRange } from '../chartRange'
 import { LOCALES, setLocale } from '../i18n'
 import { theme, setTheme, THEMES, type Theme } from '../theme'
 import { toast } from '../toast'
+import { fmtDate } from '../format'
 import Icon, { type IconName } from '../components/Icon.vue'
 import SettingsTabs from '../components/SettingsTabs.vue'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 const { t, locale } = useI18n()
 
 const THEME_ICONS: Record<Theme, IconName> = { system: 'monitor', light: 'sun', dark: 'moon' }
 const LOCALE_NAMES: Record<string, string> = { en: 'English', sk: 'Slovenčina', ru: 'Русский' }
 
-const settings = reactive<AppSettings>({ telegramEnabled: false, telegramChatId: '', defaultChartRange: '1mo' })
+const settings = reactive<AppSettings>({ telegramEnabled: false, telegramChatId: '', defaultChartRange: '1mo', pause: null })
 const investigationPrompt = ref('')
 const loading = ref(true)
 const loadError = ref(false)
@@ -27,6 +29,47 @@ const testResult = ref<IntegrationTestResult | null>(null)
 const testError = ref('')
 
 const clearingCache = ref(false)
+
+const PAUSE_DURATIONS = ['1d', '3d', '1w', '2w', '1m', 'indefinite'] as const
+const pauseOpen = ref(false)
+const pauseChoice = ref<(typeof PAUSE_DURATIONS)[number]>('1w')
+const pauseBusy = ref(false)
+const pauseError = ref('')
+
+// The switch only reflects saved state: turning it on opens the duration
+// dialog, turning it off resumes right away.
+function onPauseToggle(e: Event) {
+  ;(e.target as HTMLInputElement).checked = !!settings.pause
+  if (settings.pause) return resumeAll()
+  pauseError.value = ''
+  pauseOpen.value = true
+}
+
+async function pauseAll() {
+  pauseBusy.value = true
+  pauseError.value = ''
+  try {
+    apply((await api.post<{ settings: AppSettings }>('/api/settings/pause', { duration: pauseChoice.value })).settings)
+    pauseOpen.value = false
+    toast(t('pauseAll.pausedToast'))
+  } catch {
+    pauseError.value = t('common.genericError')
+  } finally {
+    pauseBusy.value = false
+  }
+}
+
+async function resumeAll() {
+  pauseBusy.value = true
+  try {
+    apply((await api.del<{ settings: AppSettings }>('/api/settings/pause')).settings)
+    toast(t('pauseAll.resumedToast'))
+  } catch {
+    toast(t('common.genericError'), 'error')
+  } finally {
+    pauseBusy.value = false
+  }
+}
 
 /** Unregisters the PWA service worker and wipes its caches, then reloads —
  * the escape hatch when autoUpdate leaves a stale app shell/bundle behind. */
@@ -144,6 +187,39 @@ onMounted(load)
 
     <template v-else>
       <section class="panel group">
+        <h2>{{ t('pauseAll.title') }}</h2>
+        <p class="muted small">{{ t('pauseAll.hint') }}</p>
+        <label class="toggle-row">
+          <span class="grow">{{ t('pauseAll.switch') }}</span>
+          <span class="switch">
+            <input type="checkbox" :checked="!!settings.pause" :disabled="pauseBusy" @change="onPauseToggle" /><span></span>
+          </span>
+        </label>
+        <p v-if="settings.pause" class="notice warn">
+          <Icon name="pause" :size="18" />
+          {{ settings.pause.until ? t('pauseAll.activeUntil', { date: fmtDate(settings.pause.until) }) : t('pauseAll.activeIndefinite') }}
+        </p>
+      </section>
+
+      <ConfirmDialog
+        v-if="pauseOpen"
+        :title="t('pauseAll.dialogTitle')"
+        :message="t('pauseAll.dialogMessage')"
+        :confirm-label="t('pauseAll.confirm')"
+        tone="primary"
+        :busy="pauseBusy"
+        :error="pauseError"
+        @confirm="pauseAll"
+        @cancel="pauseOpen = false"
+      >
+        <div class="seg durations" role="group" :aria-label="t('pauseAll.durationLabel')">
+          <button v-for="d in PAUSE_DURATIONS" :key="d" type="button" :aria-pressed="pauseChoice === d" @click="pauseChoice = d">
+            {{ t(`pauseAll.duration.${d}`) }}
+          </button>
+        </div>
+      </ConfirmDialog>
+
+      <section class="panel group">
         <h2>{{ t('settings.chartTitle') }}</h2>
         <p class="muted small">{{ t('settings.chartHint') }}</p>
         <div class="seg lang" role="group" :aria-label="t('settings.chartTitle')">
@@ -260,6 +336,9 @@ summary { cursor: pointer; color: var(--tide); font-weight: 600; font-size: 0.92
   max-height: 50vh;
   overflow-y: auto;
 }
+.durations { display: grid; grid-template-columns: repeat(3, 1fr); border-radius: var(--r-md); }
+.durations button { padding: 4px 6px; }
+.durations button:last-child { grid-column: 1 / -1; }
 .spin { animation: spin 0.9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>

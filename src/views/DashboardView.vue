@@ -4,8 +4,8 @@ import { takeLastTickerId } from '../router'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { api } from '../api'
-import type { MonitoringState, Ticker } from '../types'
-import { fmtTime } from '../format'
+import type { AccountPause, MonitoringState, Ticker } from '../types'
+import { fmtDate, fmtTime } from '../format'
 import { toast } from '../toast'
 import TickerCard from '../components/TickerCard.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
@@ -15,6 +15,7 @@ const ATTENTION: MonitoringState[] = ['triggered', 'investigating', 'cooldown', 
 
 const { t } = useI18n()
 const tickers = ref<Ticker[]>([])
+const pause = ref<AccountPause | null>(null)
 const loading = ref(true)
 const error = ref(false)
 const running = ref(false)
@@ -48,7 +49,9 @@ async function load(quiet = false) {
   if (!quiet) loading.value = true
   error.value = false
   try {
-    tickers.value = (await api.get<{ tickers: Ticker[] }>('/api/tickers')).tickers
+    const data = await api.get<{ tickers: Ticker[]; pause: AccountPause | null }>('/api/tickers')
+    tickers.value = data.tickers
+    pause.value = data.pause
   } catch {
     error.value = true
   } finally {
@@ -150,7 +153,7 @@ onMounted(async () => {
         <button
           type="button"
           class="btn check-btn"
-          :disabled="running"
+          :disabled="running || !!pause"
           :aria-label="t('dashboard.checkNow')"
           @click="checkNow"
         >
@@ -159,6 +162,12 @@ onMounted(async () => {
         </button>
         <RouterLink to="/tickers/new" class="btn primary"><Icon name="plus" />{{ t('dashboard.addStock') }}</RouterLink>
       </header>
+
+      <RouterLink v-if="pause" to="/settings" class="notice warn pause-banner">
+        <Icon name="pause" :size="18" />
+        <span class="grow">{{ pause.until ? t('pauseAll.activeUntil', { date: fmtDate(pause.until) }) : t('pauseAll.activeIndefinite') }}</span>
+        <Icon name="chevron" :size="16" />
+      </RouterLink>
 
       <section v-if="attention.length" class="section">
         <div class="section-head">
@@ -229,6 +238,8 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.pause-banner { align-items: center; margin-top: 16px; font-weight: 600; }
+.pause-banner:hover { text-decoration: none; }
 .page-head { flex-wrap: wrap; align-items: flex-start; }
 .page-head h1 { margin-bottom: 4px; }
 .section-head { flex-wrap: wrap; row-gap: 2px; }
